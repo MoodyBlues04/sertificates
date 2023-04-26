@@ -3,6 +3,7 @@
 namespace app\helpers;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 class ExcelHelper
 {
@@ -15,6 +16,7 @@ class ExcelHelper
     {
         $fileType = IOFactory::identify($fileName);
         $reader = IOFactory::createReader($fileType);
+
         $spreadsheet = $reader->load($fileName);
         $worksheet = $spreadsheet->setActiveSheetIndex(0);
 

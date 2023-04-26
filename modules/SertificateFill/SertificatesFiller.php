@@ -58,9 +58,11 @@ class SertificatesFiller
 
         $pdf->useTemplate($tpl);
 
-        $pdf->SetFont('Times');
+        $pdf->AddFont('DejaVu', '', 'DejaVuSerif-Italic.ttf', true);
+        $pdf->SetFont('DejaVu', '', 14);
+
         $pdf->SetFontSize('30');
-        $pdf->SetTextColor(80, 66, 184);
+        $pdf->SetTextColor(27, 59, 110);
 
         return $pdf;
     }
@@ -71,7 +73,7 @@ class SertificatesFiller
      */
     private function setRecipientName(Fpdi $pdf, $recipientName)
     {
-        $pdf->SetXY(20, 190);
+        $pdf->SetXY(20, 158);
         $pdf->Cell(0, 10, $recipientName, 0, 0, 'C');
     }
 
@@ -81,8 +83,25 @@ class SertificatesFiller
      */
     private function setSertificateNumber(Fpdi $pdf, $sertificateNumber)
     {
-        $pdf->SetXY(40, 132);
+        $pdf->SetXY(40 + $this->getSertificateNumberIndention($sertificateNumber), 123);
         $pdf->Cell(0, 10, (string)$sertificateNumber, 0, 0, 'C');
+    }
+
+    /**
+     * @param $sertificateNumber
+     * 
+     * @return int
+     */
+    private function getSertificateNumberIndention($sertificateNumber)
+    {
+        // return strlen((string)$sertificateNumber);
+        if (100 <= $sertificateNumber) {
+            return 17;
+        }
+        if (10 < $sertificateNumber && $sertificateNumber < 100) {
+            return 10;
+        }
+        return 0;
     }
 
     /**

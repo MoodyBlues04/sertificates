@@ -20,7 +20,7 @@ class SertificateFillExcelRow
      */
     public function getFullName()
     {
-        return "{$this->getFirstName()} {$this->getLastName()} {$this->getMiddleName()}";
+        return "{$this->getFirstName()} {$this->getMiddleName()} {$this->getLastName()}";
     }
 
     /**
@@ -36,7 +36,7 @@ class SertificateFillExcelRow
      */
     public function getLastName()
     {
-        return isset($this->row[1]) ? (string)$this->row[1] : null;
+        return isset($this->row[2]) ? (string)$this->row[2] : null;
     }
 
     /**
@@ -44,6 +44,6 @@ class SertificateFillExcelRow
      */
     public function getMiddleName()
     {
-        return isset($this->row[2]) ? (string)$this->row[2] : null;
+        return isset($this->row[1]) ? (string)$this->row[1] : null;
     }
 }

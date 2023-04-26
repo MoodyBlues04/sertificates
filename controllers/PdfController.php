@@ -13,7 +13,7 @@ class PdfController extends \yii\web\Controller
 {
     public function actionFillSertificats() // TODO to index controller
     {
-        $fillSertificatsForm = new FillSertificatsForm();
+        $fillSertificatsForm = new FillSertificatsForm(); // TODO delete zip file from server
         $excelFiles = $this->getKeyValExcelNames();
         $pdfFiles = $this->getKeyValPdfNames();
 
