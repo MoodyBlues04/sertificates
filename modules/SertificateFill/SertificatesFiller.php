@@ -5,14 +5,27 @@ namespace app\modules\SertificateFill;
 use app\helpers\ExcelHelper;
 use app\helpers\FilePathHelper;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\PdfParserException;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 
 class SertificatesFiller
 {
+    const OUTPUT_BROWSER = 'I';
+    const OUTPUT_FILE = 'F';
+    const NORMAL_ORIENTATION = '';
+    const HORIZONTAL_ORIENTATION = 'L';
+
     /** @var string */
     private $excelFileName;
 
     /** @var string */
     private $pdfTemplateFileName;
+
+    private $fontSize = 22;
+    private $recipientNameXY = [13, 135];
+    private $numberXY = [20, 102];
+    private $outputType = self::OUTPUT_FILE;
+    private $orientation = self::NORMAL_ORIENTATION;
 
     /**
      * @param string $excelFileName
@@ -25,6 +38,58 @@ class SertificatesFiller
     }
 
     /**
+     * @param int $fontSize
+     * @return self
+     */
+    public function setFontSize($fontSize)
+    {
+        $this->fontSize = $fontSize;
+        return $this;
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @return self
+     */
+    public function setRecipientNameXY($x, $y)
+    {
+        $this->recipientNameXY = [$x, $y];
+        return $this;
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @return self
+     */
+    public function setNumberXY($x, $y)
+    {
+        $this->numberXY = [$x, $y];
+        return $this;
+    }
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function setOutputType($type)
+    {
+        $this->outputType = $type;
+        return $this;
+    }
+
+    /**
+     * @param string $orientation
+     * @return self
+     */
+    public function setOrientation($orientation)
+    {
+        $this->orientation = $orientation;
+        return $this;
+    }
+
+    /**
      * Fills sertificates data by template and excel
      * Loads them to /storage/buffer
      * 
@@ -32,6 +97,10 @@ class SertificatesFiller
      */
     public function fillSertificates()
     {
+//        todo split into facade (fillTemplate) and builder (with all settings & PDF build)
+
+        ini_set('memory_limit', -1);
+
         $rows = ExcelHelper::getExcelDataWithoutHeaders($this->excelFileName);
         foreach ($rows as $idx => $row) {
             $excelRow = new SertificateFillExcelRow($row);
@@ -45,6 +114,8 @@ class SertificatesFiller
 
     /**
      * @return Fpdi
+     * @throws PdfParserException
+     * @throws PdfReaderException
      */
     private function getPdfTemplate()
     {
@@ -54,14 +125,14 @@ class SertificatesFiller
 
         // Import the first page from the PDF and add to dynamic PDF
         $tpl = $pdf->importPage(1);
-        $pdf->AddPage();
+        $pdf->AddPage($this->orientation);
 
         $pdf->useTemplate($tpl);
 
         $pdf->AddFont('DejaVu', '', 'DejaVuSerif-Italic.ttf', true);
         $pdf->SetFont('DejaVu', '', 14);
 
-        $pdf->SetFontSize('30');
+        $pdf->SetFontSize((string) $this->fontSize);
         $pdf->SetTextColor(27, 59, 110);
 
         return $pdf;
@@ -73,7 +144,7 @@ class SertificatesFiller
      */
     private function setRecipientName(Fpdi $pdf, $recipientName)
     {
-        $pdf->SetXY(20, 158);
+        $pdf->SetXY($this->recipientNameXY[0], $this->recipientNameXY[1]);
         $pdf->Cell(0, 10, $recipientName, 0, 0, 'C');
     }
 
@@ -83,7 +154,7 @@ class SertificatesFiller
      */
     private function setSertificateNumber(Fpdi $pdf, $sertificateNumber)
     {
-        $pdf->SetXY(40 + $this->getSertificateNumberIndention($sertificateNumber), 123);
+        $pdf->SetXY($this->numberXY[0] + $this->getSertificateNumberIndention($sertificateNumber), $this->numberXY[1]);
         $pdf->Cell(0, 10, (string)$sertificateNumber, 0, 0, 'C');
     }
 
@@ -96,10 +167,10 @@ class SertificatesFiller
     {
         // return strlen((string)$sertificateNumber);
         if (100 <= $sertificateNumber) {
-            return 17;
+            return 12;
         }
         if (10 < $sertificateNumber && $sertificateNumber < 100) {
-            return 10;
+            return 6;
         }
         return 0;
     }
@@ -110,7 +181,7 @@ class SertificatesFiller
      */
     private function loadToBuffer(Fpdi $pdf, $sertificateNumber)
     {
-        $pdf->Output('F', $this->getSertificateName($sertificateNumber));
+        $pdf->Output($this->outputType, $this->getSertificateName($sertificateNumber));
     }
 
     /**

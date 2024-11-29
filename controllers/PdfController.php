@@ -26,7 +26,13 @@ class PdfController extends \yii\web\Controller
                 $fillSertificatsForm->getExcelFullPath(),
                 $fillSertificatsForm->getPdfFullPath()
             );
-            $sertificateFiller->fillSertificates();
+            $sertificateFiller
+                ->setFontSize(20)
+                ->setRecipientNameXY(20, 88)
+                ->setNumberXY(5, 64)
+                ->setOutputType(SertificatesFiller::OUTPUT_FILE)
+                ->setOrientation(SertificatesFiller::HORIZONTAL_ORIENTATION)
+                ->fillSertificates();
 
             $archiveName = $this->getZipPath('Sertificates');
             $this->createSertificatesZip($archiveName);
