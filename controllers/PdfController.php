@@ -28,10 +28,12 @@ class PdfController extends \yii\web\Controller
             );
             $sertificateFiller
                 ->setFontSize(20)
-                ->setRecipientNameXY(20, 88)
-                ->setNumberXY(5, 64)
+                ->setNumberEnabled(false)
+                ->setNameEnabled(true)
+                ->setRecipientNameXY(20, 141)
+//                ->setNumberXY(5, 64)
                 ->setOutputType(SertificatesFiller::OUTPUT_FILE)
-                ->setOrientation(SertificatesFiller::HORIZONTAL_ORIENTATION)
+                ->setOrientation(SertificatesFiller::NORMAL_ORIENTATION)
                 ->fillSertificates();
 
             $archiveName = $this->getZipPath('Sertificates');

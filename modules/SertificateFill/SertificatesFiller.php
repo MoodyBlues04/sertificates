@@ -22,6 +22,8 @@ class SertificatesFiller
     private $pdfTemplateFileName;
 
     private $fontSize = 22;
+    private $numberEnabled = false;
+    private $nameEnabled = false;
     private $recipientNameXY = [13, 135];
     private $numberXY = [20, 102];
     private $outputType = self::OUTPUT_FILE;
@@ -35,6 +37,26 @@ class SertificatesFiller
     {
         $this->excelFileName = $excelFileName;
         $this->pdfTemplateFileName = $pdfTemplateFileName;
+    }
+
+    /**
+     * @param bool $enabled
+     * @return self
+     */
+    public function setNameEnabled($enabled)
+    {
+        $this->nameEnabled = $enabled;
+        return $this;
+    }
+
+    /**
+     * @param bool $enabled
+     * @return self
+     */
+    public function setNumberEnabled($enabled)
+    {
+        $this->numberEnabled = $enabled;
+        return $this;
     }
 
     /**
@@ -106,8 +128,12 @@ class SertificatesFiller
             $excelRow = new SertificateFillExcelRow($row);
 
             $pdf = $this->getPdfTemplate();
-            $this->setRecipientName($pdf, $excelRow->getFullName());
-            $this->setSertificateNumber($pdf, $idx + 1);
+            if ($this->nameEnabled) {
+                $this->setRecipientName($pdf, $excelRow->getFullName());
+            }
+            if ($this->numberEnabled) {
+                $this->setSertificateNumber($pdf, $idx + 1);
+            }
             $this->loadToBuffer($pdf, $idx + 1);
         }
     }
